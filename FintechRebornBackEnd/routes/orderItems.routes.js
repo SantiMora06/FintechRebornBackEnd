@@ -1,1 +1,0 @@
-const { httpGetOne, httpGetAll, httpPut, httpDelete, httpPost } = require('../helpers/httpMethods')
