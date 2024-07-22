@@ -3,7 +3,7 @@ const { Schema, model } = require('mongoose')
 // TODO: Please make sure you edit the Book model to whatever makes sense in this case
 const productsSchema = new Schema(
     {
-        Name: {
+        name: {
             type: String,
             required: [true, 'Category is required.'],
             trim: true,

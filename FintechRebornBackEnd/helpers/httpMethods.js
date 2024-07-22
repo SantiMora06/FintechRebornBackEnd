@@ -3,10 +3,7 @@ const { default: mongoose } = require("mongoose")
 // get all user or product
 const httpGetAll = async (Model, res, next, type) => {
     try {
-        let data;
-        type === "user" ?
-            data = await Model.find() :
-            data = await Model.find().populate("user");
+        const data = await Model.find();
 
         res.status(200).json(data);
     }
@@ -21,11 +18,7 @@ const httpGetOne = async (Model, res, next, id, type) => {
         return next(new Error("invalid ID"))
     }
     try {
-        let data;
-
-        type === "user" ?
-            data = await Model.findById(id).populate("product") :
-            data = await Model.findById(id)
+        const data = await Model.findById(id)
 
         if (!data) {
             return next(new Error(`${type} not found`))

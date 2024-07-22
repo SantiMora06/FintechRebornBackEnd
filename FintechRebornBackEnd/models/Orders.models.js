@@ -8,7 +8,7 @@ const ordersSchema = new Schema(
             trim: true,
         },
         orderDate: {
-            type: Date.now,
+            type: Date,
             required: [true, 'orderDate is required.'],
             trim: true,
         },
