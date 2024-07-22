@@ -16,6 +16,7 @@ const userSchema = new Schema(
     email: {
       type: String,
       required: [true, 'Pages is required.'],
+      unique: true
     },
     address: {
       type: String,

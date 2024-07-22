@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose')
 
-const ordersSchema = new Schema(
+const orderSchema = new Schema(
     {
         orderId: {
             type: Number,
@@ -28,6 +28,6 @@ const ordersSchema = new Schema(
     }
 )
 
-const Order = model('Order', ordersSchema)
+const Order = model('Order', orderSchema)
 
 module.exports = Order

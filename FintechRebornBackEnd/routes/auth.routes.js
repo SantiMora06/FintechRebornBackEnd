@@ -28,7 +28,7 @@ router.post("/signup", async (req, res, next) => {
 
 //POST login
 
-router.post("/login", async (req, res, next) => {
+router.post("/login", isAuthenticated, async (req, res, next) => {
     const { username, password } = req.body;
     // try to get the user
     // Check the password

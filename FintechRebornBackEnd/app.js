@@ -1,6 +1,4 @@
 require('dotenv').config()
-
-const PORT = 5010
 const express = require('express')
 const logger = require("morgan")
 const cors = require("cors")
@@ -13,8 +11,7 @@ const cookieParser = require("cookie-parser")
 const app = express()
 const indexRoutes = require("./routes/index.routes")
 const authRoutes = require("./routes/auth.routes")
-const userRoutes = require("./routes/user.routes")
-const productsRoutes = require("./routes/products.routes")
+
 
 //Middleware
 app.use(
@@ -34,8 +31,6 @@ app.disable("x-powered-by")
 
 app.use("/api", indexRoutes)
 app.use("/auth", authRoutes)
-app.use("/api", userRoutes)
-app.use("/api", productsRoutes)
 
 // ℹ️ This function is getting exported from the config folder. It runs most pieces of middleware
 require('./config')(app)
