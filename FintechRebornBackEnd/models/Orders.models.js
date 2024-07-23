@@ -1,16 +1,14 @@
-const { Schema, model } = require('mongoose')
+const { Schema, model, mongoose, Types } = require('mongoose')
 
-const ordersSchema = new Schema(
+const orderSchema = new Schema(
     {
-        orderId: {
-            type: Number,
-            required: [true, 'orderId is required.'],
-            trim: true,
+        userId: {
+            type: Types.ObjectId,
+            ref: "user"
         },
         orderDate: {
             type: Date,
             required: [true, 'orderDate is required.'],
-            trim: true,
         },
         status: {
             type: String,
@@ -21,6 +19,19 @@ const ordersSchema = new Schema(
             type: Number,
             required: [true, 'totalAmount is required']
         },
+        products: {
+            type: [Types.ObjectId],
+            required: [true, 'productId is required.'],
+            trim: true,
+        },
+        quantity: {
+            type: Number,
+            required: [true, 'Quantity is required.'],
+        },
+        price: {
+            type: Number,
+            required: [true, 'Price is required.']
+        },
     },
     {
         // this second object adds extra properties: `createdAt` and `updatedAt`
@@ -28,6 +39,6 @@ const ordersSchema = new Schema(
     }
 )
 
-const Order = model('Order', ordersSchema)
+const Order = model('Order', orderSchema)
 
 module.exports = Order

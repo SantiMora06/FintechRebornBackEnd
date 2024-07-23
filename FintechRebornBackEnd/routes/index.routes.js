@@ -7,6 +7,8 @@ router.get('/', (req, res) => {
 const usersRoutes = require("./user.routes")
 router.use("/users", usersRoutes)
 
+const ordersRoutes = require("./orders.routes")
+router.use("/orders", ordersRoutes)
 
 const productRoutes = require("./products.routes")
 router.use("/products", productRoutes)
