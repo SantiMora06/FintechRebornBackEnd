@@ -7,21 +7,22 @@ const userSchema = new Schema(
       type: String,
       required: [true, 'Username is required.'],
       trim: true,
+      lowercase: true,
       unique: true,
     },
     passwordHash: {
       type: String,
       required: [true, 'Password is required.'],
-      trim: true,
     },
     email: {
       type: String,
       required: [true, 'Pages is required.'],
-      unique: true
+      trim: true,
+      lowercase: true,
     },
     address: {
       type: String,
-      required: [true, 'Adress is required.']
+      required: [true, 'Address is required.']
     },
     phone: {
       type: Number,

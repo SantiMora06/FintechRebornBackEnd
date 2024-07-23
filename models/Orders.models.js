@@ -3,8 +3,8 @@ const { Schema, model, mongoose, Types } = require('mongoose')
 const orderSchema = new Schema(
     {
         userId: {
-            type: Types.ObjectId,
-            ref: "user"
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
         },
         orderDate: {
             type: Date,
@@ -19,24 +19,19 @@ const orderSchema = new Schema(
             type: Number,
             required: [true, 'totalAmount is required']
         },
-        products: {
-            type: [Types.ObjectId],
-            required: [true, 'productId is required.'],
-            trim: true,
-        },
-        quantity: {
-            type: Number,
-            required: [true, 'Quantity is required.'],
-        },
-        price: {
-            type: Number,
-            required: [true, 'Price is required.']
-        },
+        orderItems: [
+            {"productId": {type: mongoose.Schema.Types.ObjectId, required: [true, 'productId is required.']},
+              "quantity": {type: Number, required: [true, 'Quantity is required.']},
+               "price": {type: Number, required: [true, 'Price is required.']}
+            },
+        ]
     },
+    
     {
         // this second object adds extra properties: `createdAt` and `updatedAt`
         timestamps: true,
     }
+
 )
 
 const Order = model('Order', orderSchema)

@@ -30,8 +30,8 @@ const productsSchema = new Schema(
             require: ['Stock', true]
         },
         images: {
-            type: String,
-            default: ''
+            type: [String],
+            default: ['']
         }
     },
     {
