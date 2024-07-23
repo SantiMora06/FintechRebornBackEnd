@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken")
 const { isAuthenticated } = require("../middleware/route-guard.middleware")
 require("dotenv").config()
 const router = require("express").Router()
+const secret = require("../config/secretGenerator")
 
 //All routes starts with /auth
 
@@ -15,6 +16,7 @@ router.get("/", (req, res) => {
 router.post("/signup", async (req, res, next) => {
     const salt = bcrypt.genSaltSync(12)
     const passwordHash = bcrypt.hashSync(req.body.password, salt)
+
     try {
         const newUser = await User.create({ ...req.body, passwordHash })
         res.status(201).json(newUser)
@@ -28,7 +30,7 @@ router.post("/signup", async (req, res, next) => {
 
 //POST login
 
-router.post("/login", isAuthenticated, async (req, res, next) => {
+router.post("/login", async (req, res, next) => {
     const { username, password } = req.body;
     // try to get the user
     // Check the password
@@ -39,8 +41,11 @@ router.post("/login", isAuthenticated, async (req, res, next) => {
         if (potentialUser) {
             // if user has the correct credentials
             if (bcrypt.compareSync(password, potentialUser.passwordHash)) {
-                const token = jwt.sign({ userId: potentialUser._id }, process.env.TOKEN_SECRET)
-                response.json({ token })
+                const token = jwt.sign({ userId: potentialUser._id }, secret, {
+                    algorithm: "HS256",
+                    expiresIn: "6h",
+                })
+                res.json({ token })
             } else {
                 res.status(403).json({ message: "Incorrect password" })
             }
