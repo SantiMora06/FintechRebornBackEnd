@@ -13,6 +13,7 @@ const userSchema = new Schema(
     passwordHash: {
       type: String,
       required: [true, 'Password is required.'],
+      trim: true,
     },
     email: {
       type: String,
@@ -22,7 +23,8 @@ const userSchema = new Schema(
     },
     address: {
       type: String,
-      required: [true, 'Address is required.']
+      required: [true, 'Address is required.'],
+      trim: true,
     },
     phone: {
       type: Number,
@@ -32,7 +34,9 @@ const userSchema = new Schema(
       type: String,
       enum: ['guest', 'user', 'admin'],
       require: true,
-      default: "user"
+      default: "user",
+      lowercase: true,
+      trim: true,
     }
   },
   {
