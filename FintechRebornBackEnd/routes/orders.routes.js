@@ -1,28 +1,30 @@
-const { httpGetOne, httpGetAll, httpPut, httpDelete, httpPost } = require('../helpers/httpMethods')
-const Orders = require('../models/Orders.model')
+const { httpGetOne, httpGetAll, httpPut, httpDelete, httpPost } = require('../helpers/httpMethods');
+const { roleMiddleware } = require('../middleware/role.middleware');
+const { isAuthenticated } = require('../middleware/route-guard.middleware');
+const Order = require('../models/Orders.models')
 const router = require("express").Router()
 
-router.get('/:orderId', /*Later on add the Auth*/(req, res, next) => {
+router.get('/:orderId', isAuthenticated, roleMiddleware(["user", "admin"]), (req, res, next) => {
     const { orderId } = req.params;
-    httpGetOne(Orders, res, next, ordertId, "order")
+    httpGetOne(Order, res, next, orderId, "order")
 })
 
-router.get('/', /*Later on add the Auth*/(req, res, next) => {
-    httpGetAll(Orders, res, next, "order")
+router.get('/', isAuthenticated, roleMiddleware(["admin"]), (req, res, next) => {
+    httpGetAll(Order, res, next, "order")
 })
 
-router.post('/', /*Later on add the Auth*/(req, res, next) => {
-    httpPost(Orders, req, res, next)
+router.post('/', isAuthenticated, roleMiddleware(["user", "admin"]), (req, res, next) => { // Once you buy, you post an order
+    httpPost(Order, req, res, next)
 })
 
-router.put('/:orderId', /*Later on add the Auth*/(req, res, next) => {
+router.put('/:orderId', isAuthenticated, roleMiddleware(["admin"]), (req, res, next) => {
     const { orderId } = req.params;
-    httpPut(Orders, req, res, next, orderId, "order")
+    httpPut(Order, req, res, next, orderId, "order")
 })
 
-router.delete('/:orderId', /*Later on add the Auth*/(req, res, next) => {
+router.delete('/:orderId', isAuthenticated, roleMiddleware(["admin"]), (req, res, next) => {
     const { orderId } = req.params;
-    httpDelete(Orders, res, next, orderId, "order")
+    httpDelete(Order, res, next, orderId, "order")
 })
 
 module.exports = router;
