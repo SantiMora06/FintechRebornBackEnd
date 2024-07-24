@@ -1,10 +1,11 @@
-const { Schema, model, mongoose, Types } = require('mongoose')
+const { Schema, model } = require('mongoose')
 
 const orderSchema = new Schema(
     {
         userId: {
-            type: Types.ObjectId,
-            ref: "user"
+            type: Schema.Types.ObjectId, // toDo: test with Types.ObjectId, if it works
+            ref: "User",
+            required: [true, "userId must be provided."]
         },
         orderDate: {
             type: Date,
@@ -12,31 +13,38 @@ const orderSchema = new Schema(
         },
         status: {
             type: String,
-            required: [true, 'Status is required.'],
-            enum: ['Pending', 'Shipped', 'Delivered']
+            required: [true, 'status is required.'],
+            enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'] // toDO: also add user route for oder cancelleation, rest by admin
         },
+        orderItems: [
+            {
+                "productId": {
+                    type: Schema.Types.ObjectId,
+                    ref: "Products", //toDo: rename Products to Product in model export
+                    required: [true, 'productId is required.']
+                },
+                "quantity": {
+                    type: Number,
+                    required: [true, 'quantity is required.'],
+                    min: [1, "quantity must be at least 1"]
+                },
+                "price": {
+                    type: Number,
+                    required: [true, 'price is required.']
+                }
+            },
+        ],
         totalAmount: {
             type: Number,
             required: [true, 'totalAmount is required']
         },
-        products: {
-            type: [Types.ObjectId],
-            required: [true, 'productId is required.'],
-            trim: true,
-        },
-        quantity: {
-            type: Number,
-            required: [true, 'Quantity is required.'],
-        },
-        price: {
-            type: Number,
-            required: [true, 'Price is required.']
-        },
     },
+
     {
         // this second object adds extra properties: `createdAt` and `updatedAt`
         timestamps: true,
     }
+
 )
 
 const Order = model('Order', orderSchema)

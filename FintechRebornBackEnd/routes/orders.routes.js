@@ -13,16 +13,16 @@ router.get('/', isAuthenticated, roleMiddleware(["admin"]), (req, res, next) => 
     httpGetAll(Order, res, next, "order")
 })
 
-router.post('/', isAuthenticated, roleMiddleware(["user", "admin"]), (req, res, next) => { // Once you buy, you post an order
+router.post('/', isAuthenticated, roleMiddleware(["user"]), (req, res, next) => { // Once you buy, you post an order
     httpPost(Order, req, res, next)
 })
 
-router.put('/:orderId', isAuthenticated, roleMiddleware(["admin"]), (req, res, next) => {
+router.put('/:orderId', isAuthenticated, roleMiddleware(["user"]), (req, res, next) => {
     const { orderId } = req.params;
     httpPut(Order, req, res, next, orderId, "order")
 })
 
-router.delete('/:orderId', isAuthenticated, roleMiddleware(["admin"]), (req, res, next) => {
+router.delete('/:orderId', isAuthenticated, roleMiddleware(["user"]), (req, res, next) => {
     const { orderId } = req.params;
     httpDelete(Order, res, next, orderId, "order")
 })

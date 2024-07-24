@@ -6,7 +6,7 @@ const { roleMiddleware } = require("../middleware/role.middleware")
 
 
 router.get('/:userId', isAuthenticated, roleMiddleware(["user", "admin"]), (req, res, next) => {
-    const { userId } = req.params;
+    const { userId } = req.params
     httpGetOne(User, res, next, userId, "user");
 });
 
@@ -22,8 +22,8 @@ router.post('/', isAuthenticated, (req, res, next) => {
 
 // Update a user by ID
 router.put('/:userId', isAuthenticated, roleMiddleware(["user", "admin"]), (req, res, next) => {
-    const { userId } = req.params;
     delete req.body.passwordHash;
+    const { userId } = req.params
     if (req.user.role !== "admin" && req.user._id.toString() !== userId) {
         return res.status(403).json({ message: 'Forbidden' });
     }
@@ -31,8 +31,11 @@ router.put('/:userId', isAuthenticated, roleMiddleware(["user", "admin"]), (req,
 })
 
 // Delete a user by ID
-router.delete('/:userId', isAuthenticated, roleMiddleware(["admin"]), (req, res, next) => {
-    const { userId } = req.params;
+router.delete('/:userId', isAuthenticated, roleMiddleware(["user", "admin"]), (req, res, next) => {
+    const { userId } = req.params
+    if (req.user.role !== "admin" && req.user._id.toString() !== userId) {
+        return res.status(403).json({ message: 'Forbidden' });
+    }
     httpDelete(User, res, next, userId, "user");
 });
 
