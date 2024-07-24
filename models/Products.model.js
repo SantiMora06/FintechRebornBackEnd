@@ -34,6 +34,11 @@ const productsSchema = new Schema(
             type: [String],
             default: [''],
             trim: true,
+        },
+        createdBy: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
         }
     },
     {
