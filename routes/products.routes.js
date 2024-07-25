@@ -2,6 +2,7 @@ const { httpGetOne, httpGetAll, httpPut, httpDelete, httpPost } = require('../he
 const { roleMiddleware } = require('../middleware/role.middleware');
 const { isAuthenticated } = require('../middleware/route-guard.middleware');
 const Products = require('../models/Products.model')
+const User = require('../models/Users.model');
 const router = require("express").Router()
 
 router.get('/category/:category', async (req, res, next) => {
@@ -31,17 +32,26 @@ router.get('/', /*Later on add the Auth*/(req, res, next) => {
     httpGetAll(Products, res, next, "products")
 })
 
-router.post('/', isAuthenticated, roleMiddleware(["user", "admin"]), (req, res, next) => {
+router.post('/', isAuthenticated, roleMiddleware(["customer", "admin"]), (req, res, next) => {
+    req.body.createdBy = req.user._id; //incomplete ??
     httpPost(Products, req, res, next)
 })
 
-router.put('/:productId', isAuthenticated, roleMiddleware(["user", "admin"]), (req, res, next) => {
-    const { productId } = req.params;
+router.put('/:productId', isAuthenticated, roleMiddleware(["customer", "admin"]), async(req, res, next) => {
+    const { productId } = req.params; // ?? change
+    /*const product = await Products.findById(productId);
+    if (req.user.role !== "admin" && product.createdBy.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: 'Forbidden: You can only edit your own products' });
+    } */
     httpPut(Products, req, res, next, productId, "products")
 })
 
-router.delete('/:productId', isAuthenticated, roleMiddleware(["user", "admin"]), (req, res, next) => {
+router.delete('/:productId', isAuthenticated, roleMiddleware(["customer", "admin"]), async(req, res, next) => {
     const { productId } = req.params;
+    const product = await Products.findById(productId);
+    if (req.user.role !== "admin" && product.createdBy.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: 'Forbidden: You can only delete your own products' });
+    }
     httpDelete(Products, res, next, productId, "products")
 })
 

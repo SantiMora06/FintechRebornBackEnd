@@ -2,7 +2,6 @@ require('dotenv').config()
 const express = require('express')
 const logger = require("morgan")
 const cors = require("cors")
-const mongoose = require("mongoose")
 const helmet = require("helmet")
 const cookieParser = require("cookie-parser")
 
@@ -37,6 +36,8 @@ require('./config')(app)
 
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
-require('./error-handling')(app)
+require('./middleware/error-handling')(app)
 
 module.exports = app
+
+
