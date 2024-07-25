@@ -1,34 +1,16 @@
 require('dotenv').config()
 const express = require('express')
-const logger = require("morgan")
-const cors = require("cors")
 const helmet = require("helmet")
-const cookieParser = require("cookie-parser")
 
 
-// Initialize Express APP
+
+// Initialize Express APP- https://expressjs.com/en/4x/api.html#express
 const app = express()
 const indexRoutes = require("./routes/index.routes")
 const authRoutes = require("./routes/auth.routes")
 
-
-//Middleware
-app.use(
-    cors({
-        origin: ["http://localhost:5173"]
-    })
-);
-app.use(express.json())
-app.use(logger("dev"))
-app.use(express.static("public"))
-app.use(express.urlencoded({ extended: false }))
-app.use(cookieParser())
-app.use(helmet())
-app.disable("x-powered-by")
-
 // routes
-
-app.use("/api", indexRoutes)
+app.use('/api', indexRoutes)
 app.use("/auth", authRoutes)
 
 // ℹ️ This function is getting exported from the config folder. It runs most pieces of middleware

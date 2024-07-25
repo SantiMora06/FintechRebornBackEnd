@@ -1,5 +1,6 @@
 // We reuse this import in order to have access to the `body` property in requests
 const express = require('express')
+const helmet = require("helmet")
 
 // ℹ️ Responsible for the messages you see in the terminal as requests are coming in
 // https://www.npmjs.com/package/morgan
@@ -13,7 +14,7 @@ const cookieParser = require('cookie-parser')
 // unless the request if from the same domain, by default express wont accept POST requests
 const cors = require('cors')
 
-const FRONTEND_URL = process.env.ORIGIN || 'http://localhost:5173'
+const FRONTEND_URL = process.env.ORIGIN || 'http:///127.0.0.1:5173'
 
 // Middleware configuration
 module.exports = app => {
@@ -35,4 +36,7 @@ module.exports = app => {
   app.use(express.json())
   app.use(express.urlencoded({ extended: false }))
   app.use(cookieParser())
+  app.use(express.static("public"));
+  app.use(helmet())
+  app.disable("x-powered-by")
 }

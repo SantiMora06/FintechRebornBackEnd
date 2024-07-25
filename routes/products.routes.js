@@ -48,11 +48,22 @@ router.put('/:productId', isAuthenticated, roleMiddleware(["customer", "admin"])
 
 router.delete('/:productId', isAuthenticated, roleMiddleware(["customer", "admin"]), async(req, res, next) => {
     const { productId } = req.params;
-    const product = await Products.findById(productId);
-    if (req.user.role !== "admin" && product.createdBy.toString() !== req.user._id.toString()) {
-        return res.status(403).json({ message: 'Forbidden: You can only delete your own products' });
+    if (!mongoose.isValidObjectId(productId)) {
+        return next(new Error('Invalid product ID'))
+      }
+
+    try {
+    const productToDelete = await Products.findById(productId)
+    if (!productToDelete) {
+        return next(new Error(`Product with ${productId} not found`))
     }
-    httpDelete(Products, res, next, productId, "products")
+    if (productToDelete.createdBy === req.tokenPayload.userId) {
+        await Products.findByIdAndDelete(productId)
+        res.status(204).send()
+    }
+    } catch (error) {
+    next(error)
+    }
 })
 
 module.exports = router;
