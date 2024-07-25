@@ -7,6 +7,8 @@ const userSchema = new Schema(
       type: String,
       required: [true, 'Username is required.'],
       trim: true,
+      lowercase: true,
+      unique: true,
     },
     passwordHash: {
       type: String,
@@ -16,10 +18,13 @@ const userSchema = new Schema(
     email: {
       type: String,
       required: [true, 'Pages is required.'],
+      trim: true,
+      lowercase: true,
     },
     address: {
       type: String,
-      required: [true, 'Adress is required.']
+      required: [true, 'Address is required.'],
+      trim: true,
     },
     phone: {
       type: Number,
@@ -27,8 +32,10 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ['guest', 'customer', 'admin'],
-      require: true
+      enum: ['guest', 'user', 'admin'],
+      default: "user",
+      lowercase: true,
+      trim: true,
     }
   },
   {
