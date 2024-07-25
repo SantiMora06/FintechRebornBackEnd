@@ -1,52 +1,83 @@
+const mongoose = require('mongoose');
 const { httpGetOne, httpGetAll, httpPut, httpDelete, httpPost } = require('../helpers/httpMethods');
 const { roleMiddleware } = require('../middleware/role.middleware');
 const { isAuthenticated } = require('../middleware/route-guard.middleware');
 const Product = require('../models/Product.model')
-const User = require('../models/User.model');
 const router = require("express").Router()
 
-router.get('/category/:category', async (req, res, next) => {
-    const { category } = req.params;
+router.get('/', async(req, res, next) => {
     try {
-        const data = await Product.find({ category })
-
-        if (!data) {
-            return next(new Error(`${category} not found`))
-        }
-
-        res.status(200).json(data)
-    }
-    catch (error) {
-        next(error)
-    }
+        const productsData = await Product.find().populate('createdBy', 'username email');
+        res.json(productsData);
+      } catch (error) {
+        next(error);
+      }
+    
+    
+    // httpGetAll(Product, res, next, "products")
 })
 
-router.get('/:productId', /*Later on add the Auth*/(req, res, next) => {
+router.get('/:productId', async(req, res, next) => {
     const { productId } = req.params;
-    httpGetOne(Product, res, next, productId, "products")
+    if (!mongoose.isValidObjectId(productId)) {
+        return next(new Error('Invalid product ID'))
+      }
+      try {
+        const product = await Product.findById(productId)
+        if (!product) {
+          throw new Error('Product not found!')
+        }
+        res.status(200).json(product)
+      } catch (error) {
+        next(error)
+      }
+
+    //httpGetOne(Product, res, next, productId, "products")
 })
 
-
-
-router.get('/', /*Later on add the Auth*/(req, res, next) => {
-    httpGetAll(Product, res, next, "products")
+router.post('/', isAuthenticated, async (req, res, next) => {
+    try {
+      const newProduct = await Product.create({ ...req.body, createdBy: req.tokenPayload.userId })
+      res.status(201).json(newProduct)
+    } catch (error) {
+      next(error)
+    }
+    // httpPost(Product, req, res, next)
 })
 
-router.post('/', isAuthenticated, roleMiddleware(["customer", "admin"]), (req, res, next) => {
-    req.body.createdBy = req.user._id; //incomplete ??
-    httpPost(Product, req, res, next)
-})
-
-router.put('/:productId', isAuthenticated, roleMiddleware(["customer", "admin"]), async(req, res, next) => {
+/*router.put('/:productId', isAuthenticated, roleMiddleware(["customer", "admin"]), async(req, res, next) => {
     const { productId } = req.params; // ?? change
     /*const product = await Product.findById(productId);
     if (req.user.role !== "admin" && product.createdBy.toString() !== req.user._id.toString()) {
         return res.status(403).json({ message: 'Forbidden: You can only edit your own products' });
-    } */
+    } 
     httpPut(Products, req, res, next, productId, "products")
+})*/
+router.put('/:productId', isAuthenticated, async (req, res, next) => {
+    const { productId } = req.params
+  
+    if (!mongoose.isValidObjectId(productId)) {
+      return next(new Error('Invalid product ID'))
+    }
+  
+    try {
+      const updatedProduct = await Product.findByIdAndUpdate(productId, req.body, {
+        new: true,
+        runValidators: true,
+      })
+  
+      if (!updatedProduct) {
+        return next(new Error('Product not found'))
+      }
+      res.status(200).json(updatedProduct)
+    } catch (error) {
+      next(error)
+    }
 })
 
-router.delete('/:productId', isAuthenticated, roleMiddleware(["customer", "admin"]), async(req, res, next) => {
+
+
+router.delete('/:productId', isAuthenticated, async(req, res, next) => {
     const { productId } = req.params;
     if (!mongoose.isValidObjectId(productId)) {
         return next(new Error('Invalid product ID'))
@@ -65,5 +96,6 @@ router.delete('/:productId', isAuthenticated, roleMiddleware(["customer", "admin
     next(error)
     }
 })
+
 
 module.exports = router;

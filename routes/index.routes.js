@@ -1,10 +1,12 @@
 const router = require('express').Router()
 
+//All routes starts with /api
+
 router.get('/', (req, res) => {
-  res.json('All good in here')
+  res.json('All good in /api')
 })
 
-const usersRoutes = require("./user.routes")
+const usersRoutes = require("./users.routes")
 router.use("/users", usersRoutes)
 
 const ordersRoutes = require("./orders.routes")
