@@ -1,5 +1,5 @@
 const { httpGetOne, httpGetAll, httpPost, httpPut, httpDelete } = require('../helpers/httpMethods')
-const User = require('../models/Users.model')
+const User = require('../models/User.model')
 const router = require('express').Router()
 const { isAuthenticated } = require("../middleware/route-guard.middleware")
 const { roleMiddleware } = require("../middleware/role.middleware")

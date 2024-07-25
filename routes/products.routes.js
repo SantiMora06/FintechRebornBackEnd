@@ -1,14 +1,14 @@
 const { httpGetOne, httpGetAll, httpPut, httpDelete, httpPost } = require('../helpers/httpMethods');
 const { roleMiddleware } = require('../middleware/role.middleware');
 const { isAuthenticated } = require('../middleware/route-guard.middleware');
-const Products = require('../models/Products.model')
-const User = require('../models/Users.model');
+const Product = require('../models/Product.model')
+const User = require('../models/User.model');
 const router = require("express").Router()
 
 router.get('/category/:category', async (req, res, next) => {
     const { category } = req.params;
     try {
-        const data = await Products.find({ category })
+        const data = await Product.find({ category })
 
         if (!data) {
             return next(new Error(`${category} not found`))
@@ -23,23 +23,23 @@ router.get('/category/:category', async (req, res, next) => {
 
 router.get('/:productId', /*Later on add the Auth*/(req, res, next) => {
     const { productId } = req.params;
-    httpGetOne(Products, res, next, productId, "products")
+    httpGetOne(Product, res, next, productId, "products")
 })
 
 
 
 router.get('/', /*Later on add the Auth*/(req, res, next) => {
-    httpGetAll(Products, res, next, "products")
+    httpGetAll(Product, res, next, "products")
 })
 
 router.post('/', isAuthenticated, roleMiddleware(["customer", "admin"]), (req, res, next) => {
     req.body.createdBy = req.user._id; //incomplete ??
-    httpPost(Products, req, res, next)
+    httpPost(Product, req, res, next)
 })
 
 router.put('/:productId', isAuthenticated, roleMiddleware(["customer", "admin"]), async(req, res, next) => {
     const { productId } = req.params; // ?? change
-    /*const product = await Products.findById(productId);
+    /*const product = await Product.findById(productId);
     if (req.user.role !== "admin" && product.createdBy.toString() !== req.user._id.toString()) {
         return res.status(403).json({ message: 'Forbidden: You can only edit your own products' });
     } */
@@ -53,12 +53,12 @@ router.delete('/:productId', isAuthenticated, roleMiddleware(["customer", "admin
       }
 
     try {
-    const productToDelete = await Products.findById(productId)
+    const productToDelete = await Product.findById(productId)
     if (!productToDelete) {
         return next(new Error(`Product with ${productId} not found`))
     }
     if (productToDelete.createdBy === req.tokenPayload.userId) {
-        await Products.findByIdAndDelete(productId)
+        await Product.findByIdAndDelete(productId)
         res.status(204).send()
     }
     } catch (error) {

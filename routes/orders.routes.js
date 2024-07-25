@@ -1,7 +1,7 @@
 const { httpGetOne, httpGetAll, httpPut, httpDelete, httpPost } = require('../helpers/httpMethods');
 const { roleMiddleware } = require('../middleware/role.middleware');
 const { isAuthenticated } = require('../middleware/route-guard.middleware');
-const Order = require('../models/Orders.models')
+const Order = require('../models/Order.models')
 const router = require("express").Router()
 
 router.get('/:orderId', isAuthenticated, roleMiddleware(["customer", "admin"]), (req, res, next) => {

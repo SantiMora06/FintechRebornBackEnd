@@ -1,4 +1,4 @@
-const User = require("../models/Users.model")
+const User = require("../models/User.model")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const { isAuthenticated } = require("../middleware/route-guard.middleware")
