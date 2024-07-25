@@ -31,7 +31,22 @@ const orderSchema = new Schema(
                 type: Number, 
                 required: [true, 'price is required.']
                 }
-            },           
+            },
+            {"productId": {
+                type: Schema.Types.ObjectId, 
+                ref: "Products", //toDo: rename Products to Product in model export
+                required: [true, 'productId is required.']
+                },
+              "quantity": {
+                type: Number, 
+                required: [true, 'quantity is required.'],
+                min: [1, "quantity must be at least 1"]
+                },
+               "price": {
+                type: Number, 
+                required: [true, 'price is required.']
+                }
+            },                
         ],
         totalAmount: {
             type: Number,
