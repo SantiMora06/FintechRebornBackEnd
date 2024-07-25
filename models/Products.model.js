@@ -31,9 +31,8 @@ const productsSchema = new Schema(
             default: 0,
         },
         images: {
-            type: [String],
-            default: [''],
-            trim: true,
+            type: String,
+            default: ''
         },
         createdBy: {
             type: Schema.Types.ObjectId,
