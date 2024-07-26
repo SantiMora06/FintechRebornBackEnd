@@ -26,18 +26,16 @@ router.get('/:productId', /*Later on add the Auth*/(req, res, next) => {
     httpGetOne(Products, res, next, productId, "products")
 })
 
-
-
 router.get('/', /*Later on add the Auth*/(req, res, next) => {
     httpGetAll(Products, res, next, "products")
 })
 
-router.post('/', isAuthenticated, roleMiddleware(["user", "admin"]), (req, res, next) => {
+router.post('/', isAuthenticated, roleMiddleware(["customer", "admin"]), (req, res, next) => {
     req.body.createdBy = req.user._id;
     httpPost(Products, req, res, next)
 })
 
-router.put('/:productId', isAuthenticated, roleMiddleware(["user", "admin"]), async (req, res, next) => {
+router.put('/:productId', isAuthenticated, roleMiddleware(["customer", "admin"]), async (req, res, next) => {
     const { productId } = req.params;
     const product = await Products.findById(productId);
     console.log(product)
@@ -47,7 +45,7 @@ router.put('/:productId', isAuthenticated, roleMiddleware(["user", "admin"]), as
     httpPut(Products, req, res, next, productId, "products")
 })
 
-router.delete('/:productId', isAuthenticated, roleMiddleware(["user", "admin"]), async (req, res, next) => {
+router.delete('/:productId', isAuthenticated, roleMiddleware(["customer", "admin"]), async (req, res, next) => {
     const { productId } = req.params;
     const product = await Products.findById(productId);
     if (req.user.role !== "admin" && product.createdBy.toString() !== req.user._id.toString()) {
