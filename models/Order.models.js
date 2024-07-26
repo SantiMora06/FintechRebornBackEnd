@@ -7,15 +7,6 @@ const orderSchema = new Schema(
             ref: "User",
             required: [true, "userId must be provided."]
         },
-        orderDate: {
-            type: Date,
-            required: [true, 'orderDate is required.'],
-        },
-        status: {
-            type: String,
-            required: [true, 'status is required.'],
-            enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'] // toDO: also add user route for oder cancelleation, rest by admin
-        },
         orderItems: [
             {"productId": {
                 type: Schema.Types.ObjectId, 
@@ -33,6 +24,12 @@ const orderSchema = new Schema(
                 }
             },           
         ],
+        status: {
+            type: String,
+            required: [true, 'status is required.'],
+            enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'] // toDO: also add user route for oder cancelleation, rest by admin
+        },
+        
         totalAmount: {
             type: Number,
             required: [true, 'totalAmount is required']

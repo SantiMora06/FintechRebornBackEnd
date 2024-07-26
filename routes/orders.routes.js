@@ -1,28 +1,55 @@
 const { httpGetOne, httpGetAll, httpPut, httpDelete, httpPost } = require('../helpers/httpMethods');
-const { roleMiddleware } = require('../middleware/role.middleware');
+const { isAdmin } = require('../middleware/role-guard.middleware');
 const { isAuthenticated } = require('../middleware/route-guard.middleware');
 const Order = require('../models/Order.models')
 const router = require("express").Router()
 
-router.get('/:orderId', isAuthenticated, roleMiddleware(["customer", "admin"]), (req, res, next) => {
+
+router.get('/', isAuthenticated, isAdmin, async (req, res, next) => {
+    try {
+        const ordersData = await Order.find()
+        .sort({createdAt: -1}
+        )
+            .populate({
+                path: 'items.productId',
+                model: 'Product',
+            });
+
+
+        res.json(ordersData);
+    } catch (error) {
+        next(error);
+    }
+})
+
+router.get('/:orderId', isAuthenticated, (req, res, next) => {
     const { orderId } = req.params;
     httpGetOne(Order, res, next, orderId, "order")
 })
 
-router.get('/', isAuthenticated, roleMiddleware(["admin"]), (req, res, next) => {
-    httpGetAll(Order, res, next, "order")
-})
+// place a new order
+router.post('/', isAuthenticated, async (req, res, next) => { 
+    const {userId, orderItems, totalAmount} = req.body; totalAmount
+    try {
+      const totalPrice = orderItems.reduce((sum, item) => {
+        return sum + item.price * item.quantity;
+      }, 0);
 
-router.post('/', isAuthenticated, roleMiddleware(["customer"]), (req, res, next) => { // Once you buy, you post an order
-    httpPost(Order, req, res, next)
-})
+      //const newOrder = await Order.create({ ...req.body, userId: req.tokenPayload.userId, totalAmount:totalPrice});
+      res.status(201).json(newOrder);
+    }
+      catch (error) {
+      next(error);
+    }
+  
+});
 
-router.put('/:orderId', isAuthenticated, roleMiddleware(["customer"]), (req, res, next) => {
+router.put('/:orderId', isAuthenticated, (req, res, next) => {
     const { orderId } = req.params;
     httpPut(Order, req, res, next, orderId, "order")
 })
 
-router.delete('/:orderId', isAuthenticated, roleMiddleware(["customer"]), (req, res, next) => {
+router.delete('/:orderId', isAuthenticated, (req, res, next) => {
     const { orderId } = req.params; //ToDo: fetch from token
     httpDelete(Order, res, next, orderId, "order")
 })

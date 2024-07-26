@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const { httpGetOne, httpGetAll, httpPut, httpDelete, httpPost } = require('../helpers/httpMethods');
-const { roleMiddleware } = require('../middleware/role.middleware');
 const { isAuthenticated } = require('../middleware/route-guard.middleware');
 const Product = require('../models/Product.model')
 const router = require("express").Router()

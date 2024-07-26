@@ -5,6 +5,7 @@ const { isAuthenticated } = require("../middleware/route-guard.middleware")
 require("dotenv").config()
 const router = require("express").Router()
 const secret = require("../config/secretGenerator")
+const { isAdmin } = require("../middleware/role-guard.middleware")
 
 //All routes starts with /auth
 
@@ -22,7 +23,7 @@ router.post("/signup", async (req, res, next) => {
         res.status(201).json(newUser)
     } catch (error) {
         if (error.code === 11000) {
-            console.log("duplicated")
+            res.status(409).json({ message: "Username already exists!" });
         }
         next(error)
     }
@@ -32,8 +33,6 @@ router.post("/signup", async (req, res, next) => {
 
 router.post("/login", async (req, res, next) => {
     const { username, password } = req.body;
-    // try to get the user
-    // Check the password
 
     try {
         const potentialUser = await User.findOne({ username })
@@ -41,27 +40,37 @@ router.post("/login", async (req, res, next) => {
         if (potentialUser) {
             // if user has the correct credentials
             if (bcrypt.compareSync(password, potentialUser.passwordHash)) {
-                const token = jwt.sign({ userId: potentialUser._id }, secret, {
+                const payload = {
+                    userId: potentialUser._id,
+                    username: potentialUser.username,
+                    role: potentialUser.role,
+                  };
+
+                const token = jwt.sign(payload, secret, {
                     algorithm: "HS256",
-                    expiresIn: "6h",
+                    expiresIn: "1h",
                 })
-                res.json({ token })
+                res.status(200).json({ token });
             } else {
-                res.status(403).json({ message: "Incorrect password" })
+                res.status(406).json({ message: "Username or password incorrect" })
             }
-        } else {
-            res.status(404).json({ message: "Username or password incorrect" })
-        }
+        } 
 
     } catch (error) {
         next(error)
     }
 })
 
-// GET verified
-
+// GET verified: customer
 router.get("/verify", isAuthenticated, (req, res, next) => {
-    res.status(200).json(req.payload)
+    res.status(200).json(req.tokenPayload);
 })
 
+// GET verified: admin
+router.get("/verify/admin",isAuthenticated, isAdmin, (req, res, next) => {
+    res.status(200).json(req.tokenPayload);
+  }
+);
+
 module.exports = router
+

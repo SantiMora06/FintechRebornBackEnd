@@ -1,4 +1,4 @@
-const { Schema, model } = require('mongoose')
+const { Schema, model, Types } = require('mongoose')
 
 const productsSchema = new Schema(
     {
@@ -36,10 +36,10 @@ const productsSchema = new Schema(
             trim: true,
         },
         createdBy: {
-            type: Schema.Types.ObjectId,
-            ref: "User",
+            type: Types.ObjectId,
             required: true,
-        }
+            ref: 'User',
+          },
     },
     {
         // this second object adds extra properties: `createdAt` and `updatedAt`
