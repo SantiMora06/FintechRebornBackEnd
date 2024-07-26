@@ -4,7 +4,7 @@ const User = require("../models/Users.model")
 
 const isAuthenticated = async (req, res, next) => {
 
-    const token = req.headers.authorization.split(" ")[1]// Get the token from headers (Bearer 12121CDJDS)    
+    const token = req.headers.authorization?.split(" ")[1]// Get the token from headers (Bearer 12121CDJDS)    
 
     if (!token) {
         return res.status(401).json({ message: 'Unauthorized: No token provided' });
