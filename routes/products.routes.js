@@ -40,6 +40,7 @@ router.post('/', isAuthenticated, roleMiddleware(["user", "admin"]), (req, res, 
 router.put('/:productId', isAuthenticated, roleMiddleware(["user", "admin"]), async (req, res, next) => {
     const { productId } = req.params;
     const product = await Products.findById(productId);
+    console.log(product)
     if (req.user.role !== "admin" && product.createdBy.toString() !== req.user._id.toString()) {
         return res.status(403).json({ message: 'Forbidden: You can only edit your own products' });
     }
