@@ -30,7 +30,7 @@ router.get('/', /*Later on add the Auth*/(req, res, next) => {
     httpGetAll(Products, res, next, "products")
 })
 
-router.post('/', isAuthenticated, roleMiddleware(["customer", "admin"]), (req, res, next) => {
+router.post('/', isAuthenticated, roleMiddleware(["customer"]), (req, res, next) => {
     req.body.createdBy = req.user._id;
     httpPost(Products, req, res, next)
 })
