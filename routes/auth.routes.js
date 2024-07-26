@@ -5,6 +5,7 @@ const { isAuthenticated } = require("../middleware/route-guard.middleware")
 require("dotenv").config()
 const router = require("express").Router()
 const secret = require("../config/secretGenerator")
+const { roleMiddleware } = require("../middleware/role.middleware")
 
 //All routes starts with /auth
 
@@ -63,5 +64,11 @@ router.post("/login", async (req, res, next) => {
 router.get("/verify", isAuthenticated, (req, res, next) => {
     res.status(200).json(req.payload)
 })
+
+// GET verified: admin
+router.get("/verify/admin", isAuthenticated, roleMiddleware(["admin"]), (req, res, next) => {
+    res.status(200).json(req.tokenPayload);
+}
+);
 
 module.exports = router
