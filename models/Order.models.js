@@ -18,21 +18,12 @@ const orderSchema = new Schema(
                 required: [true, 'quantity is required.'],
                 min: [1, "quantity must be at least 1"]
                 },
-               "price": {
-                type: Number, 
-                required: [true, 'price is required.']
-                }
             },           
         ],
         status: {
             type: String,
             required: [true, 'status is required.'],
             enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'] // toDO: also add user route for oder cancelleation, rest by admin
-        },
-        
-        totalAmount: {
-            type: Number,
-            required: [true, 'totalAmount is required']
         },
     },
     
