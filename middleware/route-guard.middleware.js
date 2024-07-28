@@ -1,17 +1,19 @@
-const jwt = require("jsonwebtoken")
-const secret = require("../config/secretGenerator")
+const jwt = require("jsonwebtoken");
+const secret = require("../config/secretGenerator");
 
 const isAuthenticated = async (req, res, next) => {
 
     try {
-        const token = req.headers.authorization.split(" ")[1]// Get the token from headers (Bearer 12121CDJDS)    
+        // Get the token string from the authorization header - "Bearer eyJh5kp9..."
+        const token = req.headers.authorization?.split(" ")[1];
 
-    if (!token) {
-        return res.status(401).json({ message: 'Unauthorized: No token provided' });
-    }
-    const payload = jwt.verify(token, secret) 
-    req.tokenPayload = payload // to pass the decoded payload to the next route
-    next() 
+        // Verify the token. Returns payload if the token is valid, otherwise throws an error
+        const payload = jwt.verify(token, secret);
+        console.log('payload decoded after token verification: ', payload);
+
+        // Add the decoded payload to the request object as req.tokenPayload for use in next middleware or route
+        req.tokenPayload = payload;
+        next(); // to pass the request to the next middleware function or route
     }
 
     catch (error) {
@@ -19,7 +21,7 @@ const isAuthenticated = async (req, res, next) => {
         // 1. There is no token
         // 2. Token is invalid
         // 3. There is no headers or authorization in req (no token)
-        res.status(401).json('Token not provided or not valid')
+        res.status(401).json('Unauthorized: Token not provided or not valid')
     }
 }
 

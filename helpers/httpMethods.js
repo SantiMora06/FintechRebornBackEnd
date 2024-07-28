@@ -1,9 +1,11 @@
 const { default: mongoose } = require("mongoose")
 
-// get all user or product
+// get all users, product or orders
 const httpGetAll = async (Model, res, next, type) => {
     try {
-        const data = await Model.find();
+        const data = await Model.find()
+        .sort({createdAt: -1} // sort by last created on top
+        )
 
         res.status(200).json(data);
     }
@@ -12,16 +14,17 @@ const httpGetAll = async (Model, res, next, type) => {
     }
 }
 
-// get one user or product
+// get one user, product or order deatils
 const httpGetOne = async (Model, res, next, id, type) => {
     if (!mongoose.isValidObjectId(id)) {
-        return next(new Error("invalid ID"))
+        return next(new Error(`invalid ${type} ID`))
     }
     try {
         const data = await Model.findById(id)
 
         if (!data) {
-            return next(new Error(`${type} not found`))
+            res.status(404).json({ message: `${type} doesn't exist` }); // response to client
+            return next(new Error(`${type} not found`));// forward to server's error handler
         }
 
         res.status(200).json(data)
@@ -31,7 +34,7 @@ const httpGetOne = async (Model, res, next, id, type) => {
     }
 }
 
-// create new user or product
+// create new product or order
 const httpPost = async (Model, req, res, next) => {
     try {
         const newData = await Model.create(req.body)
@@ -42,19 +45,16 @@ const httpPost = async (Model, req, res, next) => {
 }
 
 
-// update user or product
+// update user, product or order
 const httpPut = async (Model, req, res, next, id, type) => {
     if (!mongoose.isValidObjectId(id)) {
-        return next(new Error("invalid ID"));
+        return next(new Error(`invalid ${type} ID`));
     }
     try {
-        const updatedData = await Model.findByIdAndUpdate(id,
-            req.body,
-            {
-                new: true,
-                runValidators: true
-            }
-        );
+        const updatedData = await Model.findByIdAndUpdate(id, req.body, {
+            new: true,
+            runValidators: true,
+          });
 
         if (!updatedData) {
             return next(new Error(`${type} not found`));
@@ -67,11 +67,11 @@ const httpPut = async (Model, req, res, next, id, type) => {
     }
 }
 
-// delete a user or product
+// delete a user, product or order
 const httpDelete = async (Model, res, next, id, type) => {
 
     if (!mongoose.isValidObjectId(id)) {
-        next(new Error("Invalid ID"));
+        return next(new Error(`invalid ${type} ID`));
     }
     try {
         const deletedData = await Model.findByIdAndDelete(id);

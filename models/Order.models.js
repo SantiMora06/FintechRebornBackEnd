@@ -7,6 +7,31 @@ const orderSchema = new Schema(
             ref: "User",
             required: [true, "userId must be provided."]
         },
+        firstName: {
+            type: String,
+            required: [true, "First name is required."],
+            trim: true,
+          },
+        lastName: {
+        type: String,
+        required: [true, "Last name is required."],
+        trim: true,
+        },
+        streetHouseNumber: {
+        type: String,
+        required: [true, "Street and house number are required for order placement."],
+        trim: true,
+        },
+        city: {
+        type: String,
+        required: [true, "City is required."],
+        trim: true,
+        },
+        zipCode: {
+        type: String,
+        trim: true,
+        required: [true, "ZIP code is required."],
+        },
         orderItems: [
             {"productId": {
                 type: Schema.Types.ObjectId, 
@@ -22,8 +47,8 @@ const orderSchema = new Schema(
         ],
         status: {
             type: String,
-            required: [true, 'status is required.'],
-            enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'] // toDO: also add user route for oder cancelleation, rest by admin
+            enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled'], // toDO: also add route for oder cancellation, rest by admin
+            default: "Pending",
         },
     },
     

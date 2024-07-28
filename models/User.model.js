@@ -1,6 +1,5 @@
 const { Schema, model } = require('mongoose')
 
-// TODO: Please make sure you edit the Book model to whatever makes sense in this case
 const userSchema = new Schema(
   {
     username: {
@@ -31,8 +30,8 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ['guest', 'customer', 'admin'],
-      require: true,
+      enum: ['customer', 'admin'],
+      default: 'customer',
       lowercase: true,
       trim: true,
     }

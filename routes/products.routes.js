@@ -6,91 +6,79 @@ const router = require("express").Router()
 
 router.get('/', async(req, res, next) => {
     try {
-        const productsData = await Product.find().populate('createdBy', 'username email');
+        const productsData = await Product.find().populate('createdBy', 'username email'); // populate only username and email
         res.json(productsData);
-      } catch (error) {
+    } 
+    catch (error) {
         next(error);
-      }
-    
-    
-    // httpGetAll(Product, res, next, "products")
+    }
+  
+    // httpGetAll(Product, res, next, "products") //todDo: refactoring later
 })
 
+// get details of a product with provided id
 router.get('/:productId', async(req, res, next) => {
     const { productId } = req.params;
-    if (!mongoose.isValidObjectId(productId)) {
-        return next(new Error('Invalid product ID'))
-      }
-      try {
-        const product = await Product.findById(productId)
-        if (!product) {
-          throw new Error('Product not found!')
-        }
-        res.status(200).json(product)
-      } catch (error) {
-        next(error)
+    httpGetOne(Product, res, next, productId, "products") 
+})
+
+// get products by category
+router.get('/category/:category', async (req, res, next) => {
+  const { category } = req.params;
+  try {
+      const productsByCategory = await Product.find({ category });
+
+      if (!productsByCategory) {
+          return next(new Error(`Products with category ${category} not found`));
       }
 
-    //httpGetOne(Product, res, next, productId, "products")
+      res.status(200).json(productsByCategory);
+  }
+  catch (error) {
+      next(error);
+  }
 })
 
 router.post('/', isAuthenticated, async (req, res, next) => {
-    try {
-      const newProduct = await Product.create({ ...req.body, createdBy: req.tokenPayload.userId })
-      res.status(201).json(newProduct)
-    } catch (error) {
-      next(error)
-    }
-    // httpPost(Product, req, res, next)
+    req.body.createdBy = req.tokenPayload.userId;
+    httpPost(Product, req, res, next); //todDo: refactor the rest likewise
 })
 
-/*router.put('/:productId', isAuthenticated, roleMiddleware(["customer", "admin"]), async(req, res, next) => {
-    const { productId } = req.params; // ?? change
-    /*const product = await Product.findById(productId);
-    if (req.user.role !== "admin" && product.createdBy.toString() !== req.user._id.toString()) {
-        return res.status(403).json({ message: 'Forbidden: You can only edit your own products' });
-    } 
-    httpPut(Products, req, res, next, productId, "products")
-})*/
 router.put('/:productId', isAuthenticated, async (req, res, next) => {
-    const { productId } = req.params
-  
-    if (!mongoose.isValidObjectId(productId)) {
-      return next(new Error('Invalid product ID'))
+    const { productId } = req.params;
+    const productToEdit = await Product.findById(productId);
+    if (!productToEdit) {
+      return next(new Error(`Product with ID ${productId} not found`))
     }
-  
-    try {
-      const updatedProduct = await Product.findByIdAndUpdate(productId, req.body, {
-        new: true,
-        runValidators: true,
-      })
-  
-      if (!updatedProduct) {
-        return next(new Error('Product not found'))
-      }
-      res.status(200).json(updatedProduct)
-    } catch (error) {
-      next(error)
-    }
+   
+    // only authorized user or platform admin can edit a product's details
+    if (productToEdit.createdBy.toString() !== req.tokenPayload.userId.toString() || req.tokenPayload.role !== "admin") {
+      return res.status(403).json({ message: 'Forbidden: You can only edit your own products' });
+    } 
+    httpPut(Product, req, res, next, productId, "products") //toDO: later
 })
 
 
 
 router.delete('/:productId', isAuthenticated, async(req, res, next) => {
     const { productId } = req.params;
-    if (!mongoose.isValidObjectId(productId)) {
-        return next(new Error('Invalid product ID'))
-      }
-
-    try {
-    const productToDelete = await Product.findById(productId)
+    const productToDelete = await Product.findById(productId);
     if (!productToDelete) {
-        return next(new Error(`Product with ${productId} not found`))
+      return next(new Error(`Product with ID ${productId} not found`))
     }
-    if (productToDelete.createdBy === req.tokenPayload.userId) {
-        await Product.findByIdAndDelete(productId)
-        res.status(204).send()
-    }
+   
+    // only authorized user or platform admin can delete a product
+    if (productToDelete.createdBy.toString() !== req.tokenPayload.userId.toString() || req.tokenPayload.role !== "admin") {
+      return res.status(403).json({ message: 'Forbidden: You can only delete your own products' });
+    } 
+        
+    //to Do: refactor: httpDelete
+    try {
+      const deletedproduct = await Product.findByIdAndDelete(productId)
+      console.log ("Following product deleted: ", deletedproduct)
+
+      res.status(204).send()
+  
     } catch (error) {
     next(error)
     }

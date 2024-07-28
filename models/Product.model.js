@@ -14,7 +14,6 @@ const productsSchema = new Schema(
         },
         description: {
             type: String,
-            required: [true, 'Description is required.'],
         },
         price: {
             type: Number,
@@ -31,15 +30,14 @@ const productsSchema = new Schema(
             default: 0,
         },
         images: {
-            type: [String],
-            default: [''],
-            trim: true,
-        },
+            type: String,
+            default: ''
+        }, 
         createdBy: {
-            type: Types.ObjectId,
+            type: Schema.Types.ObjectId,
+            ref: "User",
             required: true,
-            ref: 'User',
-          },
+        }
     },
     {
         // this second object adds extra properties: `createdAt` and `updatedAt`

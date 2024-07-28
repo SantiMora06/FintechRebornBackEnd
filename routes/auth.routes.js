@@ -14,14 +14,50 @@ router.get("/", (req, res) => {
 })
 
 // POST Signup
-router.post("/signup", async (req, res, next) => {
-    const salt = bcrypt.genSaltSync(12)
-    const passwordHash = bcrypt.hashSync(req.body.password, salt)
-
+router.post("/signup", async(req, res, next) => {
+    // const { username, password, email } = req.body;
+    
+    // Use regex to validate the email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    // Use regex to validate the password format
+    const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}/;
+       
     try {
-        const newUser = await User.create({ ...req.body, passwordHash })
-        res.status(201).json(newUser)
+    if (!emailRegex.test(req.body.email)) {
+        res.status(400).json({ message: 'Provide a valid email address.' });
+        return next(new Error("Invalid email format"))
+    }
+  
+    if (!passwordRegex.test(req.body.password)) {
+        res.status(400).json({ message: 'Password must have at least 6 characters and contain at least one number, one lowercase and one uppercase letter.' });
+        return next(new Error("Invalid password format"))
+    }
+
+ 
+    /* Check the users collection if a user with the same username already exists <ALREADY CHECKED THROUGH ERROR CODE 11000>
+    const foundUser = await User.findOne({ username });
+    if (foundUser) {
+        res.status(400).json({ message: "Username is taken." });
+        return next(new Error("Username is taken"))
+      } */
+    
+    // If the username is unique, proceed to hash the password
+    const saltRounds  = 12;
+    const salt = bcrypt.genSaltSync(saltRounds)
+    const hashedPassword  = bcrypt.hashSync(req.body.password, salt)
+
+    // Create a new user in the database
+    const newUser = await User.create({ ...req.body, passwordHash: hashedPassword  })
+    
+    // Deconstruct the newly created user object to omit the password, we should never expose passwords publicly
+    const { username, email, address, phone, role, _id } = newUser;
+    // Create a new object that doesn't expose the password
+    const user = { username, email, address, phone, role, _id };
+
+    // Send a json response containing the user object without passowrd
+    res.status(201).json({ user: user });
     } catch (error) {
+        console.log(error);
         if (error.code === 11000) {
             res.status(409).json({ message: "Username already exists!" });
         }
@@ -35,25 +71,36 @@ router.post("/login", async (req, res, next) => {
     const { username, password } = req.body;
 
     try {
-        const potentialUser = await User.findOne({ username })
+        const foundUser = await User.findOne({ username })
         // If user exists with this username
-        if (potentialUser) {
-            // if user has the correct credentials
-            if (bcrypt.compareSync(password, potentialUser.passwordHash)) {
+        if (foundUser) {
+            // Compare the provided password with the one saved in the database to check if user has the correct credentials
+            if (bcrypt.compareSync(password, foundUser.passwordHash)) {
+                // Deconstruct the user object to omit the password before setting it as token payload
                 const payload = {
-                    userId: potentialUser._id,
-                    username: potentialUser.username,
-                    role: potentialUser.role,
+                    userId: foundUser._id,
+                    username: foundUser.username,
+                    role: foundUser.role,
                   };
 
-                const token = jwt.sign(payload, secret, {
-                    algorithm: "HS256",
-                    expiresIn: "1h",
-                })
-                res.status(200).json({ token });
+                // Create and sign the token
+                const authToken  = jwt.sign(
+                    payload, 
+                    secret, 
+                    {algorithm: "HS256",expiresIn: "1h",}
+                );
+
+                // Send the token as the response
+                res.status(200).json({ token: authToken }); // { authToken: authToken } same as writng { authToken } since property key:value same
             } else {
-                res.status(406).json({ message: "Username or password incorrect" })
+                res.status(401).json({ message: "Unauthenticated: Username or password incorrect" })
             }
+        }
+        else {
+            // If the user is not found, send an error response
+            res.status(401).json({ message: "User not found." }) // repsonse on Frontend
+            return next(new Error("User not found")) // pass error to the error handler
+
         } 
 
     } catch (error) {
@@ -63,14 +110,15 @@ router.post("/login", async (req, res, next) => {
 
 // GET verified: customer
 router.get("/verify", isAuthenticated, (req, res, next) => {
-    res.status(200).json(req.tokenPayload);
+    res.status(200).json({message: 'Login verified', tokenPayload: req.tokenPayload});
 })
 
 // GET verified: admin
 router.get("/verify/admin",isAuthenticated, isAdmin, (req, res, next) => {
-    res.status(200).json(req.tokenPayload);
+    res.status(200).json({ message: 'Admin verified', tokenPayload: req.tokenPayload });
   }
 );
+
 
 module.exports = router
 
