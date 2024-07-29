@@ -21,7 +21,7 @@ const isAuthenticated = async (req, res, next) => {
         if (!user) {
             return res.status(401).json({ message: 'Unauthorized: User not found' });
         }
-        req.user = user;
+        req.user = user; // this might not be necesarry, because tokenPayload already has userId
         req.tokenPayload = payload // pass the decoded payload to the next route
         next()
     } catch (error) {

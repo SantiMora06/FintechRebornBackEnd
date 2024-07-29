@@ -42,11 +42,16 @@ router.post("/login", async (req, res, next) => {
         if (potentialUser) {
             // if user has the correct credentials
             if (bcrypt.compareSync(password, potentialUser.passwordHash)) {
-                const token = jwt.sign({ userId: potentialUser._id }, secret, {
-                    algorithm: "HS256",
-                    expiresIn: "6h",
-                })
-                res.json({ token })
+                const payload = {
+                    userId: potentialUser._id,
+                    username: potentialUser.username,
+                    role: potentialUser.role,
+                  };
+                const authToken = jwt.sign(
+                    payload, 
+                    secret, 
+                    { algorithm: "HS256",expiresIn: "6h",})
+                res.json({ token: authToken })
             } else {
                 res.status(403).json({ message: "Incorrect password" })
             }
@@ -62,13 +67,7 @@ router.post("/login", async (req, res, next) => {
 // GET verified
 
 router.get("/verify", isAuthenticated, (req, res, next) => {
-    res.status(200).json(req.payload)
+    res.status(200).json({message: 'Login verified', tokenPayload: req.tokenPayload});
 })
-
-// GET verified: admin
-router.get("/verify/admin", isAuthenticated, roleMiddleware(["admin"]), (req, res, next) => {
-    res.status(200).json(req.tokenPayload);
-}
-);
 
 module.exports = router
