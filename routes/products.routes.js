@@ -2,7 +2,6 @@ const { httpGetOne, httpGetAll, httpPut, httpDelete, httpPost } = require('../he
 const { roleMiddleware } = require('../middleware/role.middleware');
 const { isAuthenticated } = require('../middleware/route-guard.middleware');
 const Products = require('../models/Products.model');
-const User = require('../models/Users.model');
 const router = require("express").Router()
 
 router.get('/category/:category', async (req, res, next) => {
@@ -17,6 +16,19 @@ router.get('/category/:category', async (req, res, next) => {
         res.status(200).json(data)
     }
     catch (error) {
+        next(error)
+    }
+})
+
+router.get('/createdby/:userId', isAuthenticated, roleMiddleware(["customer", "admin"]), async (req, res, next) => {
+    const { userId } = req.params;
+    if (req.tokenPayload.role !== 'admin' && req.tokenPayload.userId !== userId) {
+        return res.status(403).json({ error: 'Access denied. You can only access your own orders' })
+    }
+    try {
+        const userProducts = await Products.find({ createdBy: new mongoose.Types.ObjectId(userId) })
+        res.status(200).json(userProducts)
+    } catch (error) {
         next(error)
     }
 })
