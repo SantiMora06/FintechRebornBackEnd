@@ -1,7 +1,6 @@
 require('dotenv').config()
 const express = require('express')
 const logger = require("morgan")
-const cors = require("cors")
 const mongoose = require("mongoose")
 const helmet = require("helmet")
 const cookieParser = require("cookie-parser")
@@ -14,16 +13,7 @@ const authRoutes = require("./routes/auth.routes")
 
 
 //Middleware
-app.use(
-    cors({
-        origin: ["http://localhost:5173"]
-    })
-);
-app.use(express.json())
-app.use(logger("dev"))
 app.use(express.static("public"))
-app.use(express.urlencoded({ extended: false }))
-app.use(cookieParser())
 app.use(helmet())
 app.disable("x-powered-by")
 
