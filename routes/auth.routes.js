@@ -20,7 +20,10 @@ router.post("/signup", async (req, res, next) => {
 
     try {
         const newUser = await User.create({ ...req.body, passwordHash })
-        res.status(201).json(newUser)
+        const { username, email, address, phone, role, _id } = newUser;
+        // Create a new object that doesn't expose the password
+        const user = { username, email, address, phone, role, _id };
+        res.status(201).json(user)
     } catch (error) {
         if (error.code === 11000) {
             console.log("duplicated")
