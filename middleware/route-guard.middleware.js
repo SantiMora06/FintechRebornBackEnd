@@ -11,10 +11,6 @@ const isAuthenticated = async (req, res, next) => {
     }
     const payload = jwt.verify(token, secret) // Decode the token and get payload
 
-    if (!payload) {
-        return res.status(401).json({ message: 'Unauthorized: Invalid token' });
-    }
-
     try {
 
         const user = await User.findById(payload.userId)
